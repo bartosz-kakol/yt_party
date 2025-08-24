@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pl">
+    <head>
+        <title><%= siteTitle %></title>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<!--        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">-->
+
+        <link rel="manifest" href="/master.webmanifest" />
+
+        <link rel="stylesheet" href="/styles/style.css" />
+        <link rel="stylesheet" href="/styles/master.css" />
+
+        <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="https://www.youtube.com/iframe_api"></script>
+        <script src="/js/common.js"></script>
+
+        <script>
+            const ROOM_ID = "<%= room.id %>";
+        </script>
+    </head>
+    <body>
+        <div id="root">
+            <div id="player-wrapper">
+                <div id="player"></div>
+            </div>
+            <div id="side-menu">
+                <div>
+                    <button>
+                        <iconify-icon icon="mdi:qrcode" width="36"></iconify-icon>
+                    </button>
+                    <span>Kod QR</span>
+                </div>
+
+                <div>
+                    <button>
+                        <iconify-icon icon="mdi:playlist-play" width="36"></iconify-icon>
+                    </button>
+                    <span>Kolejka</span>
+                </div>
+
+                <div>
+                    <button>
+                        <iconify-icon icon="mdi:skip-next" width="36"></iconify-icon>
+                    </button>
+                    <span>Następny<br/>w kolejce</span>
+                </div>
+
+                <div>
+                    <button>
+                        <iconify-icon icon="mdi:skip-previous" width="36"></iconify-icon>
+                    </button>
+                    <span>Poprzedni<br/>w kolejce</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="splash">
+            <h1>Łączenie...</h1>
+        </div>
+
+        <script src="/js/socket.js"></script>
+        <script src="/js/master.js"></script>
+    </body>
+</html>

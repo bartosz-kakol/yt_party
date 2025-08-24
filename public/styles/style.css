@@ -1,0 +1,64 @@
+@import "common.css";
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: black;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+details, summary {
+    cursor: pointer;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+
+    &.fill {
+        width: 100%;
+        height: 100%;
+    }
+
+    &.center-h {
+        align-items: center;
+    }
+
+    &.center-v {
+        justify-content: center;
+    }
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    flex: 0 1 auto;
+
+    &.fill {
+        flex: 1 0 auto;
+    }
+
+    &.center-h {
+        justify-content: center;
+    }
+
+    &.center-v {
+        align-items: center;
+    }
+}
+
+.no-scroll { overflow: hidden; }
+.no-scroll-x { overflow-x: hidden; }
+.no-scroll-y { overflow-y: hidden; }
+
+.auto-scroll { overflow: auto; }
+.auto-scroll-x { overflow-x: auto; }
+.auto-scroll-y { overflow-y: auto; }

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pl">
+    <head>
+        <title><%= siteTitle %></title>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+        <link rel="stylesheet" href="/styles/style.css" />
+        <link rel="stylesheet" href="/styles/member.css" />
+
+        <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+        <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/js/common.js"></script>
+    </head>
+    <body>
+        <div id="root"></div>
+
+        <div id="splash">
+            <h1>Łączenie...</h1>
+        </div>
+
+        <script src="/js/socket.js"></script>
+        <script type="text/babel" src="/js/member.jsx"></script>
+    </body>
+</html>

@@ -1,0 +1,8 @@
+<link rel="stylesheet" href="/styles/style.css" />
+
+<h1>Error <%= error.status %></h1>
+<p><%= message %></p>
+
+<% if ([...Object.keys(error)].length > 0) { %>
+<pre><%= error.stack %></pre>
+<% } %>
