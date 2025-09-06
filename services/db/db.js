@@ -54,6 +54,7 @@ class Database {
 
 		room.id = id
 		room.queue = new Queue();
+		room.state = null;
 
 		this.#rooms[id] = room;
 

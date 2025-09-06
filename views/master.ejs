@@ -13,9 +13,11 @@
         <link rel="stylesheet" href="/styles/style.css" />
         <link rel="stylesheet" href="/styles/master.css" />
 
+        <script src="https://unpkg.com/@qr-platform/qr-code.js/lib/browser.js" crossorigin></script>
         <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
-        <script src="/socket.io/socket.io.js"></script>
         <script src="https://www.youtube.com/iframe_api"></script>
+
+        <script src="/socket.io/socket.io.js"></script>
         <script src="/js/common.js"></script>
 
         <script>
@@ -27,20 +29,23 @@
             <div id="player-wrapper">
                 <div id="player"></div>
             </div>
-            <div id="side-menu">
+
+            <div id="side-menu" style="visibility: hidden;">
                 <div>
-                    <button>
+                    <button onclick="showQRCode();">
                         <iconify-icon icon="mdi:qrcode" width="36"></iconify-icon>
                     </button>
                     <span>Kod QR</span>
                 </div>
 
                 <div>
-                    <button>
-                        <iconify-icon icon="mdi:playlist-play" width="36"></iconify-icon>
+                    <button onclick="copyMemberLink();">
+                        <iconify-icon icon="mdi:link" width="36"></iconify-icon>
                     </button>
-                    <span>Kolejka</span>
+                    <span>Kopiuj link</span>
                 </div>
+
+                <div></div>
 
                 <div>
                     <button>
@@ -56,6 +61,16 @@
                     <span>Poprzedni<br/>w kolejce</span>
                 </div>
             </div>
+        </div>
+
+        <div id="qr-code-screen" class="screen" data-show="0">
+            <h1>Zeskanuj, aby dołączyć do pokoju!</h1>
+            <div id="qr-code"></div>
+            <button onclick="hideQRCode();" style="padding: 10px 15px; font-size: 2em;">Zamknij</button>
+        </div>
+
+        <div id="waiting-for-player-screen" class="screen" data-show="1">
+            <h1>Oczekiwanie na odtwarzacz...</h1>
         </div>
 
         <div id="splash">

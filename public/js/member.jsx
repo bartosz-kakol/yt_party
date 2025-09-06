@@ -9,16 +9,18 @@ function hideSplash() {
 
 const socket = new SocketConnection(ROOM_ID);
 
+socket.addEventListener("connected", () => {
+	hideSplash();
+	log("socket", "%cConnected", "color: green;");
+});
+
 function MemberPage() {
 	/** @type {?Object} */
 	const initialNowPlaying = null;
 	const [nowPlaying, setNowPlaying] = React.useState(initialNowPlaying);
 
 	React.useEffect(() => {
-		socket.connect(() => {
-			hideSplash();
-			log("socket", "%cConnected", "color: green;");
-		})
+		socket.connect();
 	}, []);
 
 	return (

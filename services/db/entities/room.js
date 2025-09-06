@@ -7,6 +7,9 @@ class Room {
 
 	/** @type {Queue} */
 	queue;
+
+	/** @type {?MasterState} */
+	state;
 }
 
 module.exports = Room;

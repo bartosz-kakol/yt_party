@@ -24,6 +24,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+function pretty(obj) {
+	return JSON.stringify(obj, undefined, 4);
+}
+
 app.locals.siteTitle = "YouTube Party";
 
 /**
@@ -98,13 +102,33 @@ io.on("connection", socket => {
 	socket.join(roomId);
 
 	socket.on("state:sync", callback => {
-		// TODO
-		callback({
+		const room = services.db.getRoom(roomId);
 
+		if (room === null) {
+			callback({
+				success: false,
+				error: "Room does not exist."
+			});
+			return;
+		}
+
+		callback({
+			success: true,
+			state: room.state,
 		});
 	});
 
 	socket.on("state:report", state => {
+		const room = services.db.getRoom(roomId);
+
+		if (room === null) return;
+
+		if (state === null || typeof state !== "object") {
+			services.logger.error(`Received invalid state for room ${roomId}:\n${pretty(state)}`);
+			return;
+		}
+
+		room.state = state;
 		io.to(roomId).emit("state:report", state);
 	});
 });
