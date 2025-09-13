@@ -1,4 +1,4 @@
-@import "common.css";
+@import "modules/common.css";
 
 html, body {
     width: 100%;
@@ -18,14 +18,24 @@ details, summary {
     cursor: pointer;
 }
 
+.container, .row {
+    --gap: 5px;
+    gap: var(--gap);
+    padding: var(--gap);
+
+    &.fill {
+        flex: 1 1 auto;
+    }
+}
+
+.separator {
+    background: #aaa;
+    --separator-thickness: 1px;
+}
+
 .container {
     display: flex;
     flex-direction: column;
-
-    &.fill {
-        width: 100%;
-        height: 100%;
-    }
 
     &.center-h {
         align-items: center;
@@ -33,6 +43,11 @@ details, summary {
 
     &.center-v {
         justify-content: center;
+    }
+
+    > .separator {
+        width: 100%;
+        flex: 0 0 var(--separator-thickness);
     }
 }
 
@@ -42,16 +57,17 @@ details, summary {
     width: 100%;
     flex: 0 1 auto;
 
-    &.fill {
-        flex: 1 0 auto;
-    }
-
     &.center-h {
         justify-content: center;
     }
 
     &.center-v {
         align-items: center;
+    }
+
+    > .separator {
+        height: 100%;
+        flex: 0 0 var(--separator-thickness);
     }
 }
 
@@ -62,3 +78,9 @@ details, summary {
 .auto-scroll { overflow: auto; }
 .auto-scroll-x { overflow-x: auto; }
 .auto-scroll-y { overflow-y: auto; }
+
+@media (orientation: portrait) {
+    .container > .row:not(.not-responsive) {
+        flex-direction: column;
+    }
+}

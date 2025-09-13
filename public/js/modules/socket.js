@@ -21,9 +21,13 @@ class SocketConnection extends EventTarget {
 			this.dispatchEvent(new CustomEvent("connected"));
 		});
 
-		this.#socket.on("state:report", state => {
-			this.dispatchEvent(new CustomEvent("stateChanged", state))
+		this.#socket.on("state:report", detail => {
+			this.dispatchEvent(new CustomEvent("stateChanged", { detail }))
 		});
+
+		this.#socket.on("command", (commandName, args) => {
+			this.dispatchEvent(new CustomEvent("commandReceived", { detail: { commandName, args } }))
+		})
 
 		this.#socket.connect();
 	}
@@ -33,7 +37,7 @@ class SocketConnection extends EventTarget {
 	}
 
 	/**
-	 * @param state {MasterState}
+	 * @param state {State}
 	 */
 	reportState(state) {
 		if (!this.#socket.connected) {
@@ -45,7 +49,7 @@ class SocketConnection extends EventTarget {
 	}
 
 	/**
-	 * @return {Promise<MasterState>}
+	 * @return {Promise<State>}
 	 */
 	async syncState() {
 		if (!this.#socket.connected) {
@@ -62,5 +66,18 @@ class SocketConnection extends EventTarget {
 				resolve(response.state);
 			});
 		});
+	}
+
+	/**
+	 * @param commandName {CommandName}
+	 * @param args {?any}
+	 */
+	sendCommand(commandName, args = null) {
+		if (!this.#socket.connected) {
+			console.error("Tried to send command but socket is not connected!");
+			return;
+		}
+
+		this.#socket.emit("command", commandName, args);
 	}
 }

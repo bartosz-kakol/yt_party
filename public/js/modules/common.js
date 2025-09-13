@@ -16,8 +16,16 @@ function log(profile, message, ...args) {
 				"font-size: 18px;",
 				...convertedArgs
 			);
+			break;
+		case "readiness-tracker":
+			console.log(
+				`%c👓 ${message}`,
+				"font-size: 18px;",
+				...args
+			);
 			break
 		default:
 			console.log(message, ...args);
+			break;
 	}
 }

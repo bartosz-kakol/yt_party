@@ -8,7 +8,7 @@ class Room {
 	/** @type {Queue} */
 	queue;
 
-	/** @type {?MasterState} */
+	/** @type {?State} */
 	state;
 }
 

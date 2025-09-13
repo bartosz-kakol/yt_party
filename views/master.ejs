@@ -18,7 +18,9 @@
         <script src="https://www.youtube.com/iframe_api"></script>
 
         <script src="/socket.io/socket.io.js"></script>
-        <script src="/js/common.js"></script>
+        <script src="/js/modules/common.js"></script>
+        <script src="/js/modules/screen.js"></script>
+        <script src="/js/modules/socket.js"></script>
 
         <script>
             const ROOM_ID = "<%= room.id %>";
@@ -33,16 +35,9 @@
             <div id="side-menu" style="visibility: hidden;">
                 <div>
                     <button onclick="showQRCode();">
-                        <iconify-icon icon="mdi:qrcode" width="36"></iconify-icon>
+                        <iconify-icon icon="mdi:share" width="36"></iconify-icon>
                     </button>
-                    <span>Kod QR</span>
-                </div>
-
-                <div>
-                    <button onclick="copyMemberLink();">
-                        <iconify-icon icon="mdi:link" width="36"></iconify-icon>
-                    </button>
-                    <span>Kopiuj link</span>
+                    <span>Udostępnij</span>
                 </div>
 
                 <div></div>
@@ -64,20 +59,31 @@
         </div>
 
         <div id="qr-code-screen" class="screen" data-show="0">
-            <h1>Zeskanuj, aby dołączyć do pokoju!</h1>
             <div id="qr-code"></div>
-            <button onclick="hideQRCode();" style="padding: 10px 15px; font-size: 2em;">Zamknij</button>
+            <div>
+                <h1>Zeskanuj, aby dołączyć do pokoju!</h1>
+                <div style="display: flex; flex-direction: row; gap: 10px;">
+                    <button onclick="copyMemberLink();" style="padding: 10px 15px; font-size: 2em;">
+                        <iconify-icon icon="mdi:link" width="36"></iconify-icon>
+                        &nbsp;Kopiuj link
+                    </button>
+                    <button onclick="qrCodeScreen.hide();" style="padding: 10px 15px; font-size: 2em;">Zamknij</button>
+                </div>
+            </div>
         </div>
 
-        <div id="waiting-for-player-screen" class="screen" data-show="1">
+        <div id="waiting-for-player-screen" class="screen" data-show="0">
             <h1>Oczekiwanie na odtwarzacz...</h1>
         </div>
 
-        <div id="splash">
-            <h1>Łączenie...</h1>
+        <div id="interaction-screen" class="screen" data-show="0">
+            <div id="touch-or-click-icon">
+                <iconify-icon icon="mdi:gesture-tap" width="128"></iconify-icon>
+                <iconify-icon icon="mdi:cursor-default-click" width="128"></iconify-icon>
+            </div>
+            <h1>Kliknij lub dotknij gdziekolwiek na ekranie, aby kontynuować.</h1>
         </div>
 
-        <script src="/js/socket.js"></script>
         <script src="/js/master.js"></script>
     </body>
 </html>

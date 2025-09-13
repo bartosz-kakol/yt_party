@@ -85,6 +85,8 @@ app.use((err, req, res, next) => {
 	res.render("error");
 });
 
+/** @typedef {"play"|"pause"} CommandName */
+
 io.on("connection", socket => {
 	if (!socket.handshake.query.roomId) {
 		socket.disconnect();
@@ -129,7 +131,12 @@ io.on("connection", socket => {
 		}
 
 		room.state = state;
-		io.to(roomId).emit("state:report", state);
+
+		socket.broadcast.to(roomId).emit("state:report", { state });
+	});
+
+	socket.on("command", (commandName, args) => {
+		socket.broadcast.to(roomId).emit("command", commandName, args);
 	});
 });
 

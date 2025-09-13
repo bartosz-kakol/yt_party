@@ -16,16 +16,16 @@
         <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
 
         <script src="/socket.io/socket.io.js"></script>
-        <script src="/js/common.js"></script>
+        <script src="/js/modules/common.js"></script>
+        <script src="/js/modules/socket.js"></script>
+
+        <script>
+			const ROOM_ID = "<%= room.id %>";
+        </script>
     </head>
     <body>
         <div id="root"></div>
 
-        <div id="splash">
-            <h1>Łączenie...</h1>
-        </div>
-
-        <script src="/js/socket.js"></script>
         <script type="text/babel" src="/js/member.jsx"></script>
     </body>
 </html>
