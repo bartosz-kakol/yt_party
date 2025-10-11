@@ -1,10 +1,10 @@
-const uuid = require("uuid");
-const Room = require("./entities/room");
-const Queue = require("../../utils/queue");
+import { v4 as uuidv4 } from "uuid";
+import Room from "./entities/room.js";
+import Queue from "../../utils/queue.js";
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
-class Database {
+export default class Database {
 	/** @type {Date} */
 	#lastCleaning;
 
@@ -49,7 +49,7 @@ class Database {
 	 * @return {string}
 	 */
 	createRoom() {
-		const id = uuid.v4();
+		const id = uuidv4();
 		const room = new Room();
 
 		room.id = id
@@ -69,5 +69,3 @@ class Database {
 		return this.#rooms[id] ?? null;
 	}
 }
-
-module.exports = Database;

@@ -13,7 +13,7 @@ input[type="text"] {
 }
 
 button {
-    border: none;
+    border: 1px solid #1E90FF;
     border-radius: 5px;
     background: #1E90FF;
     color: white;
@@ -21,19 +21,80 @@ button {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    transition: background 175ms;
-    font-size: 1.5em;
+    transition: background 175ms, color 175ms;
+    font-size: 1.3em;
+
+    &.btn-secondary {
+        background: transparent;
+        border-color: #1E90FF;
+        color: #1E90FF;
+
+        &:hover {
+            background: #fff1;
+        }
+    }
 
     &:hover {
         background: #5DA4EF;
+        border-color: #5DA4EF;
     }
 
     &:active {
         background: #0B5FB0;
+        border-color: #0B5FB0;
     }
 
     &:disabled {
         background: #888;
+        border-color: #888;
         cursor: not-allowed;
     }
+}
+
+.progress-bar {
+    display: grid;
+    grid-template-areas:
+        "elapsed total"
+        "progress progress";
+    overflow: hidden;
+
+    > div {
+        &:nth-child(1) {
+            grid-area: elapsed;
+        }
+
+        &:nth-child(2) {
+            grid-area: total;
+            text-align: right;
+        }
+
+        &:nth-child(3) {
+            grid-area: progress;
+            position: relative;
+
+            --bar-thickness: 10px;
+
+            > div {
+                &:nth-child(1) {
+                    background: #ddd;
+                    width: 100%;
+                    height: var(--bar-thickness);
+                }
+
+                &:nth-child(2) {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    background: #1E90FF;
+                    height: var(--bar-thickness);
+                }
+            }
+        }
+    }
+}
+
+@keyframes blinking {
+    from { opacity: 0.5; }
+    50% { opacity: 1; }
+    to { opacity: 0.5; }
 }

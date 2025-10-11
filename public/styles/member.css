@@ -5,42 +5,29 @@ p {
 }
 
 #playback-bar {
-    display: grid;
-    grid-template-areas:
-        "elapsed total"
-        "progress progress";
+    width: 100%;
+    flex: 0 1 auto;
+}
 
-    > div {
-        &:nth-child(1) {
-            grid-area: elapsed;
-        }
-
-        &:nth-child(2) {
-            grid-area: total;
-            text-align: right;
-        }
-
-        &:nth-child(3) {
-            grid-area: progress;
-            position: relative;
-
-            --bar-thickness: 10px;
-
-            > div {
-                &:nth-child(1) {
-                    background: #ddd;
-                    width: 100%;
-                    height: var(--bar-thickness);
-                }
-
-                &:nth-child(2) {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    background: #1E90FF;
-                    height: var(--bar-thickness);
-                }
-            }
-        }
+@keyframes video-metadata-fade-in {
+    from {
+        opacity: 0;
+        top: 35px;
     }
+
+    to {
+        opacity: 1;
+        top: 45px;
+    }
+}
+
+#video-metadata {
+    position: absolute;
+    left: 5px;
+    width: calc(100% - 10px);
+    height: max(170px, 10%);
+    background: #222;
+    border-radius: 15px;
+    border: 1px solid white;
+    animation: video-metadata-fade-in 250ms cubic-bezier(.1, 0, 0, 1) forwards;
 }

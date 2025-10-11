@@ -1,15 +1,13 @@
-class Room {
+export default class Room {
 	/** @type {string} */
 	id;
 
 	/** @type {Date} */
 	createdAt;
 
-	/** @type {Queue} */
+	/** @type {Queue<YouTubeVideoMetadata>} */
 	queue;
 
 	/** @type {?State} */
 	state;
 }
-
-module.exports = Room;

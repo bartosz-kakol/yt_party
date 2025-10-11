@@ -28,7 +28,7 @@
     </head>
     <body>
         <div id="root">
-            <div id="player-wrapper">
+            <div id="player-wrapper" style="visibility: hidden;">
                 <div id="player"></div>
             </div>
 
@@ -63,7 +63,7 @@
             <div>
                 <h1>Zeskanuj, aby dołączyć do pokoju!</h1>
                 <div style="display: flex; flex-direction: row; gap: 10px;">
-                    <button onclick="copyMemberLink();" style="padding: 10px 15px; font-size: 2em;">
+                    <button class="btn-secondary" onclick="copyMemberLink();" style="padding: 10px 15px; font-size: 2em;">
                         <iconify-icon icon="mdi:link" width="36"></iconify-icon>
                         &nbsp;Kopiuj link
                     </button>

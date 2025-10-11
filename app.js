@@ -1,18 +1,25 @@
-const createError = require("http-errors");
-const debug = require("debug")("yt-party:server");
-const http = require("http");
-const express = require("express");
-const { Server } = require("socket.io");
-const path = require("path");
-const cookieParser = require("cookie-parser");
-const logger = require("morgan");
-const winston = require("winston");
+import createError from "http-errors";
+import debug from "debug";
+import http from "http";
+import express from "express";
+import { Server } from "socket.io";
+import path from "path";
+import cookieParser from "cookie-parser";
+import logger from "morgan";
+import winston from "winston";
+import { fileURLToPath } from "url";
 
-const Database = require("./services/db/db");
+import Database from "./services/db/db.js";
+import youtube from "./utils/youtube.js";
+
+global.__filename = fileURLToPath(import.meta.url);
+global.__dirname = path.dirname(__filename);
+
+const serverDebug = debug("yt-party:server");
 
 const app = express();
 const server = http.createServer(app);
-// noinspection JSCheckFunctionSignatures,JSClosureCompilerSyntax
+// noinspection JSCheckFunctionSignatures,JSClosureCompilerSyntax,JSUnresolvedReference
 const io = new Server(server);
 
 app.set("views", path.join(__dirname, "views"));
@@ -66,7 +73,10 @@ app.use((req, res, next) => {
 	next();
 });
 
-app.use("/", require("./routes/main")(services));
+// Routers
+
+import mainRouter from "./routes/main.js";
+app.use("/", mainRouter(services));
 
 // catch 404 and forward to the error handler
 app.use((req, res, next) => {
@@ -85,7 +95,7 @@ app.use((err, req, res, next) => {
 	res.render("error");
 });
 
-/** @typedef {"play"|"pause"} CommandName */
+/** @typedef {"play"|"pause"|"seek"} CommandName */
 
 io.on("connection", socket => {
 	if (!socket.handshake.query.roomId) {
@@ -103,6 +113,7 @@ io.on("connection", socket => {
 
 	socket.join(roomId);
 
+	// State API
 	socket.on("state:sync", callback => {
 		const room = services.db.getRoom(roomId);
 
@@ -116,7 +127,7 @@ io.on("connection", socket => {
 
 		callback({
 			success: true,
-			state: room.state,
+			data: room.state,
 		});
 	});
 
@@ -135,9 +146,118 @@ io.on("connection", socket => {
 		socket.broadcast.to(roomId).emit("state:report", { state });
 	});
 
-	socket.on("command", (commandName, args) => {
-		socket.broadcast.to(roomId).emit("command", commandName, args);
+	// Command API
+	socket.on("command", (commandName, arg) => {
+		socket.broadcast.to(roomId).emit("command", commandName, arg);
 	});
+
+	// Queue API
+	socket.on("queue:sync", callback => {
+		const room = services.db.getRoom(roomId);
+
+		if (room === null) {
+			callback({
+				success: false,
+				error: "Room does not exist."
+			});
+			return;
+		}
+
+		callback({
+			success: true,
+			data: room.queue.toArray(),
+		});
+	});
+
+	socket.on("queue:addVideo", (videoId, callback) => {
+		const room = services.db.getRoom(roomId);
+
+		if (room === null) {
+			callback({
+				success: false,
+				error: "Room does not exist."
+			});
+			return;
+		}
+
+		if (!youtube.testYouTubeVideoId(videoId)) {
+			services.logger.error(`Received invalid video ID to add to queue for room ${roomId}:\n${videoId}`);
+			callback({
+				success: false,
+				error: "Invalid video id."
+			});
+			return;
+		}
+
+		youtube.downloadVideoMetadata(videoId)
+			.then(metadata => {
+				room.queue.enqueue(metadata);
+
+				io.to(roomId).emit("queue:modified", room.queue.toArray());
+
+				callback({ success: true });
+			})
+			.catch(err => {
+				console.error(err);
+				callback({
+					success: false,
+					error: "Failed to fetch video metadata."
+				});
+			});
+	});
+
+	socket.on("queue:removeVideo", (index, callback) => {
+		const room = services.db.getRoom(roomId);
+
+		if (room === null) {
+			callback({
+				success: false,
+				error: "Room does not exist."
+			});
+			return;
+		}
+
+		room.queue.removeItemAt(index);
+
+		io.to(roomId).emit("queue:modified", room.queue.toArray());
+
+		callback({ success: true });
+	});
+
+	// General API
+	socket.on("api:downloadVideoMetadata", (videoId, callback) => {
+		const room = services.db.getRoom(roomId);
+
+		if (room === null) {
+			callback({
+				success: false,
+				error: "Room does not exist."
+			});
+			return;
+		}
+
+		if (!youtube.testYouTubeVideoId(videoId)) {
+			callback({
+				success: false,
+				error: "Invalid YouTube video ID"
+			});
+		}
+
+		youtube.downloadVideoMetadata(videoId)
+			.then(metadata => {
+				callback({
+					success: true,
+					data: metadata
+				});
+			})
+			.catch(err => {
+				services.logger.error(`Failed to fetch YouTube video metadata for video ID "${videoId}": ${err.message}`);
+				callback({
+					success: false,
+					error: "Failed to fetch video metadata."
+				});
+			});
+	})
 });
 
 const port = normalizePort(process.env.PORT || "3000");
@@ -188,5 +308,5 @@ function onListening() {
 	const addr = server.address();
 	const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
 
-	debug("Listening on " + bind);
+	serverDebug("Listening on " + bind);
 }

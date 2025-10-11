@@ -71,7 +71,7 @@ const playerStateMap = {
 };
 
 /**
- * @typedef {Object} VideoMetadata
+ * @typedef {Object} StateVideoMetadata
  * @property {string} title
  * @property {string} author
  */
@@ -79,7 +79,7 @@ const playerStateMap = {
 /**
  * @typedef {Object} State
  * @property {string} videoId
- * @property {VideoMetadata} videoMetadata
+ * @property {StateVideoMetadata} videoMetadata
  * @property {PlayerState} playerState
  * @property {number} currentTime
  * @property {number} duration
@@ -120,34 +120,33 @@ class StateManager extends EventTarget {
 
 	updateState() {
 		this.state = this.#definer();
-
-		this.dispatchEvent(new CustomEvent("stateChanged", { detail: { state: this.state } }));
 	}
 }
 
-const stateManager = new StateManager(
-	() => {
-		if (!player) return null;
+function defineState() {
+	if (!player) return null;
 
-		const videoData = player.getVideoData();
+	const videoData = player.getVideoData();
 
-		return {
-			videoId: videoData.video_id ?? null,
-			videoMetadata: {
-				title: videoData.title,
-				author: videoData.author
-			},
-			playerState: playerStateMap[player.getPlayerState()],
-			currentTime: Math.floor(player.getCurrentTime()),
-			duration: Math.floor(player.getDuration())
-		};
-	}
-);
+	return {
+		videoId: videoData.video_id ?? null,
+		videoMetadata: {
+			title: videoData.title,
+			author: videoData.author
+		},
+		playerState: playerStateMap[player.getPlayerState()],
+		currentTime: Math.floor(player.getCurrentTime()),
+		duration: Math.floor(player.getDuration())
+	};
+}
+
+const stateManager = new StateManager(defineState);
 
 stateManager.addEventListener("stateChanged", event => {
 	const { state } = event.detail;
 
-	socket.reportState(state);
+	// noinspection JSIgnoredPromiseFromCall
+	socket.state.report(state);
 });
 
 function askForInteraction() {
@@ -167,7 +166,6 @@ function createPlayer() {
 	readinessTracker.addEventListener("ready", onPlayerReady, { once: true });
 
 	player = new YT.Player("player", {
-		// videoId: state.videoId,
 		width: "100%",
 		height: "100%",
 		playerVars: {
@@ -195,7 +193,7 @@ function onPlayerReady() {
 	}, { once: true });
 
 	// Sync state and show QR code if the state is empty or indicates that the player was not started yet.
-	socket.syncState()
+	socket.state.sync()
 		.then(receivedState => {
 			log("socket", "State synced from server:\n%o", receivedState);
 
@@ -220,7 +218,7 @@ function onReady() {
 
 	setPlayerToCurrentState();
 
-	// Report time and video details every second the player is playing.
+	// Report the current state every second if the player is playing.
 	setInterval(() => {
 		if (player.getPlayerState() !== YT.PlayerState.PLAYING) return;
 
@@ -242,6 +240,7 @@ function onReady() {
 // these actions immediately.
 //
 // Every action added to the queue is removed when invoked.
+/** @type {Function[]} */
 const playerActionQueue = [];
 
 /**
@@ -254,7 +253,7 @@ function doQueuedPlayerAction() {
 }
 
 /**
- * Does everything to put the player in the same state as the current state indicated by the global `state` variable.
+ * Does everything to put the player in the same state as the current state held in the `StateManager`.
  */
 function setPlayerToCurrentState() {
 	const currentVideoId = player.getVideoData().video_id;
@@ -266,7 +265,7 @@ function setPlayerToCurrentState() {
 
 	if (referenceState === null) return;
 
-	playerActionQueue.push(() => {
+	const actions = () => {
 		player.seekTo(referenceState.currentTime, true);
 
 		if (referenceState.playerState === "PLAYING") {
@@ -274,16 +273,18 @@ function setPlayerToCurrentState() {
 		} else {
 			player.pauseVideo();
 		}
-	});
+	};
 
-	// If the video ID has changed, load the new video and let the player event handler take care of the queue.
+	// If the video ID has changed, add the rest of the actions to the queue, then load the new video and let the player
+	// event handler take care of the queue.
 	if (referenceState.videoId !== null && referenceState.videoId !== currentVideoId) {
+		playerActionQueue.push(actions);
 		player.loadVideoById(referenceState.videoId);
 		return;
 	}
 
-	// If the video stayed the same, just take care of the queue immediately.
-	doQueuedPlayerAction();
+	// If loading a new video was not necessary, just execute the remaining actions immediately.
+	actions();
 }
 
 function onPlayerStateChange(event) {
@@ -296,7 +297,9 @@ function onPlayerStateChange(event) {
 	stateManager.updateState();
 
 	if (["PLAYING", "PAUSED"].includes(stateName)) {
-		doQueuedPlayerAction();
+		while (playerActionQueue.length > 0) {
+			doQueuedPlayerAction();
+		}
 	}
 }
 
@@ -353,13 +356,13 @@ socket.addEventListener("connected", () => {
 socket.addEventListener("commandReceived", event => {
 	/** @type {CommandName} */
 	const commandName = event.detail.commandName;
-	const args = event.detail.args;
+	const arg = event.detail.arg;
 
 	log("socket",
-		`Received command %c${commandName}%c with args:\n%o`,
+		`Received command %c${commandName}%c with arg:\n%o`,
 		"background: orange; color: white; font-family: monospace; padding: 0 4px; border-radius: 4px;",
 		"",
-		args
+		arg
 	);
 
 	switch (commandName) {
@@ -368,6 +371,9 @@ socket.addEventListener("commandReceived", event => {
 			break;
 		case "pause":
 			player.pauseVideo();
+			break;
+		case "seek":
+			player.seekTo(arg, true);
 			break;
 		default:
 			console.warn(`Unknown command "${commandName}" received!`);

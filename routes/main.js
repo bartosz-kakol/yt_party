@@ -1,10 +1,10 @@
-const express = require("express");
+import express from "express";
 
 /**
  * @param services {Services}
  * @returns {import("express").Router}
  */
-module.exports = services => {
+export default services => {
 	const router = express.Router();
 
 	router.get("/", (req, res, next) => {
