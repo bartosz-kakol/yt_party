@@ -36,6 +36,7 @@ function pretty(obj) {
 }
 
 app.locals.siteTitle = "YouTube Party";
+app.locals.devEnv = process.env.NODE_ENV === "development";
 
 /**
  * @typedef {Object} Services

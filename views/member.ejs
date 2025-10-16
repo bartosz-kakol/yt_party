@@ -10,10 +10,15 @@
         <link rel="stylesheet" href="/styles/style.css" />
         <link rel="stylesheet" href="/styles/member.css" />
 
-        <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-        <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
-        <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+        <% if (devEnv) { %>
+            <script src="/js/vendor/react.min.js"></script>
+            <script src="/js/vendor/react-dom.min.js"></script>
+        <% } else { %>
+            <script src="/js/vendor/react.js"></script>
+            <script src="/js/vendor/react-dom.js"></script>
+        <% } %>
+        <script src="/js/vendor/babel.min.js"></script>
+        <script src="/js/vendor/iconify-icon.min.js"></script>
 
         <script src="/socket.io/socket.io.js"></script>
         <script src="/js/modules/common.js"></script>

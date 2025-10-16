@@ -190,6 +190,10 @@ function MemberPage() {
 	const initialVideoQueue = null;
 	const [videoQueue, setVideoQueue] = React.useState(initialVideoQueue);
 
+	/** @type {?number} */
+	const initialMovingQueueVideoIndex = null;
+	const [movingQueueVideoIndex, setMovingQueueVideoIndex] = React.useState(initialMovingQueueVideoIndex);
+
 	function onConnected() {
 		log("socket", "%cConnected", "color: green;");
 		setConnected(true);
@@ -214,7 +218,7 @@ function MemberPage() {
 
 		socket.queue.addVideo(videoIdInput)
 			.then(() => {
-				log("socket", "Video added to queue:\n%o", videoIdInput);
+				log("socket", `Video added to queue:\n%c${videoIdInput}`, "font-family: monospace; font-size: revert;");
 			})
 			.catch(e => {
 				console.warn(e);
@@ -246,6 +250,13 @@ function MemberPage() {
 			default:
 				break;
 		}
+	}
+
+	/**
+	 * @param index {number}
+	 */
+	function onMoveVideoInQueueButtonClick(index) {
+		setMovingQueueVideoIndex(index);
 	}
 
 	React.useEffect(() => {
@@ -333,7 +344,7 @@ function MemberPage() {
 					(
 						<div id="video-metadata" className="container no-scroll not-responsive center-h center-v">
 							{
-								downloadedVideoMetadata ?
+								downloadedVideoMetadata && downloadedVideoMetadata.id === videoIdInput ?
 									<div className="row fill no-scroll not-responsive">
 										<img
 											src={downloadedVideoMetadata.thumbnail}
@@ -341,24 +352,24 @@ function MemberPage() {
 											style={{
 												height: "100%",
 												aspectRatio: "16 / 9",
-												borderRadius: "5px"
+												borderRadius: "8px"
 											}}
 										/>
 
 										<div className="container fill no-scroll">
-											<div className="row no-scroll" style={{minWidth: "0"}}>
-												<h2 className="ellipsis" style={{margin: 0}}>{downloadedVideoMetadata.title}</h2>
+											<div className="row no-scroll" style={{minWidth: "0", paddingBottom: "2px"}}>
+												<h3 className="ellipsis" style={{margin: 0}}>{downloadedVideoMetadata.title}</h3>
 											</div>
-											<div className="row no-scroll" style={{minWidth: "0"}}>
-												<p className="ellipsis" style={{margin: 0}}>{downloadedVideoMetadata.author}</p>
+											<div className="row no-scroll" style={{minWidth: "0", paddingTop: "2px"}}>
+												<p className="ellipsis" style={{margin: 0, color: "#aaa"}}>{downloadedVideoMetadata.author}</p>
 											</div>
-											<div className="row no-scroll fill" style={{justifyContent: "flex-end", alignItems: "flex-end"}}>
+											<div className="row no-scroll fill not-responsive" style={{justifyContent: "flex-end", alignItems: "flex-end", flexShrink: "0"}}>
 												<button className="btn-secondary">
-													<iconify-icon icon="mdi:play" width="36"></iconify-icon>
+													<iconify-icon icon="mdi:play" width="32"></iconify-icon>
 													Odtwórz teraz
 												</button>
 												<button onClick={onAddVideoToQueueClick}>
-													<iconify-icon icon="mdi:add" width="36"></iconify-icon>
+													<iconify-icon icon="mdi:add" width="32"></iconify-icon>
 													Do kolejki
 												</button>
 											</div>
@@ -388,9 +399,52 @@ function MemberPage() {
 						<div className="container fill">
 							{
 								videoQueue.map((video, index) => (
-									<div key={index} className="row center-v">
-										<pre>{JSON.stringify(video, undefined, 4)}</pre>
-									</div>
+									<>
+										<div key={`video${index}`} className="row center-v no-scroll not-responsive">
+											<img
+												src={video.thumbnail}
+												alt={`Thumbnail for ${video.title}`}
+												style={{
+													height: "50px",
+													aspectRatio: "16 / 9",
+													borderRadius: "8px"
+												}}
+											/>
+
+											<div className="container fill no-scroll">
+												<div className="row no-scroll" style={{minWidth: "0", paddingBottom: "3px"}}>
+													<p className="ellipsis" style={{margin: 0, fontWeight: "bold"}}>{video.title}</p>
+												</div>
+												<div className="row no-scroll" style={{minWidth: "0", paddingTop: "3px"}}>
+													<p className="ellipsis" style={{margin: 0, color: "#aaa"}}>{video.author}</p>
+												</div>
+											</div>
+
+											<div className="container no-scroll" style={{flexShrink: "0"}}>
+												<div className="row no-scroll fill not-responsive" style={{justifyContent: "flex-end", alignItems: "flex-end"}}>
+													<button
+														className="btn-secondary"
+														title="Odtwórz teraz"
+													>
+														<iconify-icon icon="mdi:play" width="32"></iconify-icon>
+													</button>
+													<button
+														title="Zmień pozycję"
+														onClick={() => onMoveVideoInQueueButtonClick(index)}
+													>
+														<iconify-icon icon="mdi:arrow-up-down-bold" width="32"></iconify-icon>
+													</button>
+												</div>
+											</div>
+										</div>
+
+										<div key={`separator${index}`} className="row center-h no-scroll not-responsive">
+											<button className="btn-secondary">
+												{/* TODO add moving handles */}
+												Umieść tutaj
+											</button>
+										</div>
+									</>
 								))
 							}
 						</div>

@@ -21,7 +21,7 @@ button {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    transition: background 175ms, color 175ms;
+    transition: background 175ms, color 175ms, border-color 175ms;
     font-size: 1.3em;
 
     &.btn-secondary {
@@ -30,7 +30,7 @@ button {
         color: #1E90FF;
 
         &:hover {
-            background: #fff1;
+            background: #fff2;
         }
     }
 
